@@ -77,7 +77,7 @@ Currently the image name is used as the service name.
                     "createdIndex":3049
                 },
                 {
-                    "key":"/services/registrator/69b49c31688a0bed047aa4ec44305e5c82d80f0121bf97da1b96f06fbe80cd78/bar",
+                    "key":"/services/service-a/69b49c31688a0bed047aa4ec44305e5c82d80f0121bf97da1b96f06fbe80cd78/bar",
                     "value":"abc",
                     "expiration":"2015-07-15T23:27:08.369949396Z",
                     "ttl":14,
