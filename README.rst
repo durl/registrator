@@ -40,7 +40,7 @@ Other Paramaters:
     
         -e ETCD_TTL 15
         
-    Specify the path to the docker socket:
+    Specify the path to the docker socket::
     
         -e DOCKER_SOCKET unix:///var/run/docker.sock
 
