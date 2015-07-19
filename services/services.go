@@ -60,7 +60,7 @@ func determineServicePort(container *docker.Container, hostIp string, portLabel 
 			// use the only exposed port
 			portMapping = mappings
 		}
-		if portKey == containerPort {
+		if portKey.Port() == containerPort.Port() && portKey.Proto() == containerPort.Proto(){
 			// use (container) port defined by label
 			portMapping = mappings
 		}
@@ -76,24 +76,44 @@ func determineServicePort(container *docker.Container, hostIp string, portLabel 
 	return ""
 }
 
-func containerToService(container *docker.Container, hostIp string, portLabel string) Service {
-	hostPort := determineServicePort(container, portLabel, hostIp)
-	return Service{
-		Id: container.ID,
+func filterLabels(labels map[string]string, labelKeys []string) map[string]string {
+	var filteredLabels map[string]string = make(map[string]string)
+	for _, key := range labelKeys {
+		if labels[key] != "" {
+			filteredLabels[key] = labels[key]
+		}
+	}
+	return filteredLabels
+}
+
+func containerToService(container *docker.Container, hostIp string, portLabel string, labelKeys []string) *Service {
+	hostPort := determineServicePort(container, hostIp, portLabel)
+	labels := filterLabels(container.Config.Labels, labelKeys)
+	if hostPort == "" {
+		// no viable port detected
+		return nil
+	}
+	if len(labels) != len(labelKeys) {
+		// labels are missing
+		return nil
+	}
+	return &Service{
+		Id:      container.ID,
 		Service: container.Config.Image,
 		Address: fmt.Sprintf("%s:%s", hostIp, hostPort),
-		Labels: container.Config.Labels,
+		Labels:  labels,
 	}
 }
 
-func GetDiscoverableServices(dockerClient *docker.Client) []Service {
+func GetDiscoverableServices(dockerClient *docker.Client, hostIp string, portLabel string, labelKeys []string) []Service {
 	var services []Service
 	containers := getContainers(dockerClient)
 	for _, container := range containers {
-		service := containerToService(container, os.Getenv("HOST_IP"), os.Getenv("SERVICE_PORT_LABEL"))
-		fmt.Println(container.ID)
-		services = append(services, service)
+		service := containerToService(container, hostIp, portLabel, labelKeys)
+		if service != nil {
+			services = append(services, *service)
+		}
+
 	}
 	return services
 }
-
