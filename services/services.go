@@ -34,10 +34,10 @@ func GetDockerClient(endpoint string) *docker.Client {
 }
 
 type Service struct {
-	id      string
-	service string
-	address string
-	labels  map[string]string
+	Id      string
+	Service string
+	Address string
+	Labels  map[string]string
 }
 
 func parsePort(port string) docker.Port {
@@ -79,10 +79,10 @@ func determineServicePort(container *docker.Container, hostIp string, portLabel 
 func containerToService(container *docker.Container, hostIp string, portLabel string) Service {
 	hostPort := determineServicePort(container, portLabel, hostIp)
 	return Service{
-		id: container.ID,
-		service: container.Config.Image,
-		address: fmt.Sprintf("%s:%s", hostIp, hostPort),
-		labels: container.Config.Labels,
+		Id: container.ID,
+		Service: container.Config.Image,
+		Address: fmt.Sprintf("%s:%s", hostIp, hostPort),
+		Labels: container.Config.Labels,
 	}
 }
 

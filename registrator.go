@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 	"registrator/services"
+	"registrator/registry"
 	"github.com/docopt/docopt-go"
 )
 
@@ -21,7 +22,7 @@ Options:
   -h --help             Show this screen.
   --version             Show version.
   --host=<ip>           IP address of the host.
-  --etcd=<ip:port>      Address of the etcd host.
+  --etcd=<url>          URL of the etcd host.
   --docker=<url>        URL of the docker daemon endpoint. [default: unix:///var/run/docker.sock]
   --ttl=<ttl>           How long the service registration is valid. [default: 15s]
 `
@@ -33,15 +34,19 @@ Options:
 	// read arguments:
 	dockerEndpoint := args["--docker"].(string)
 	ttl, _ := time.ParseDuration(string(args["--ttl"].(string)))
+	machines := []string{string(args["--etcd"].(string))}
 
 	// setup clients:
 	dockerClient := services.GetDockerClient(dockerEndpoint)
+	etcdClient := registry.GetEtcdClient(machines)
+
 
 	// run main loop:
 	for {
 		services := services.GetDiscoverableServices(dockerClient)
 		fmt.Println(services)
 		time.Sleep(ttl/2)
+		registry.RegisterServices(etcdClient, services, ttl)
 		//registerServices(services)
 	}
 
