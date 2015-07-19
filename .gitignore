@@ -89,3 +89,5 @@ Session.vim
 
 .ropeproject/
 .idea/
+bin/
+gopath/
