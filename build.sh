@@ -11,5 +11,5 @@ ln -s ${PWD} $GOPATH/src/${REPO_PATH}
 eval $(go env)
 
 go get $(go list -f "{{range .Imports}}{{ .  }} {{end}}")
-# Static compilation is useful when etcd is run in a container
+
 CGO_ENABLED=0 go build -a -installsuffix cgo -ldflags "-s" -o bin/registrator ${REPO_PATH}
